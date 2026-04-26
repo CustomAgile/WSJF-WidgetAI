@@ -7,6 +7,7 @@ import '@customagile/widget-ai/styles/grid.css';
 import type { RallyContext } from '@customagile/widget-ai/types/rally-context';
 import { Grid } from '@customagile/widget-ai/components/Grid';
 import type { GridColumn } from '@customagile/widget-ai/components/Grid';
+import type { FilterFieldDef } from '@customagile/widget-ai/components/filter/types';
 import { AppHeader } from '@customagile/widget-ai/components/AppHeader';
 import { EditModePanel, SettingRow } from '@customagile/widget-ai/components/EditModePanel';
 import { useWidgetSettings, defineWidgetSettings } from '@customagile/widget-ai/components/settings';
@@ -208,6 +209,24 @@ export default function App({ rallyContext, data }: AppProps) {
   // ── Columns ────────────────────────────────────────────────────────
   const columns = useMemo(() => buildColumns(), []);
 
+  // ── Filters ────────────────────────────────────────────────────────
+  // Derive option lists from the loaded items so multiselect/dropdown chips
+  // reflect what's actually present in the current scope.
+  const filterFields = useMemo<FilterFieldDef[]>(() => {
+    const states = Array.from(
+      new Set(items.map((i) => i.State).filter((s): s is string => !!s)),
+    ).sort();
+    const owners = Array.from(
+      new Set(items.map((i) => i.OwnerName).filter((s): s is string => !!s)),
+    ).sort();
+    return [
+      { field: 'Name', label: 'Name', type: 'text' },
+      { field: 'State', label: 'State', type: 'multiselect', config: { options: states } },
+      { field: 'OwnerName', label: 'Owner', type: 'multiselect', config: { options: owners } },
+      { field: 'WSJFScore', label: 'WSJF Score', type: 'text' },
+    ];
+  }, [items]);
+
   // ── EditMode render ────────────────────────────────────────────────
   if (rallyContext.isEditMode) {
     return (
@@ -341,6 +360,10 @@ export default function App({ rallyContext, data }: AppProps) {
             onCellEdit={handleCellEdit}
             exportToCsv={`wsjf-${typeLabel.toLowerCase()}.csv`}
             exportToExcel={`wsjf-${typeLabel.toLowerCase()}.xlsx`}
+            filters={{
+              fields: filterFields,
+              searchPlaceholder: 'Search Work Items',
+            }}
           />
         </div>
       )}
