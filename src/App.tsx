@@ -40,27 +40,15 @@ function wsjfScoreStyle(score: number | null): React.CSSProperties {
 
 // ── Column definitions ─────────────────────────────────────────────────
 
-function buildColumns(rallyBaseUrl?: string): GridColumn[] {
+function buildColumns(): GridColumn[] {
   return [
     {
       text: 'ID',
       dataIndex: 'FormattedID',
       columnType: 'textShort',
-      width: 90,
+      width: 110,
       sortable: true,
       locked: true,
-      renderer: (value, record) => {
-        const fid = value as string;
-        if (!fid) return null;
-        const oid = record.ObjectID as number;
-        const base = rallyBaseUrl ?? '';
-        const href = base
-          ? `${base}/#/detail/portfolioitem/${(record.PortfolioItemTypeName as string).toLowerCase()}/${oid}`
-          : undefined;
-        return href
-          ? <a href={href} target="_blank" rel="noreferrer" style={{ color: 'var(--ca-link)' }}>{fid}</a>
-          : <span>{fid}</span>;
-      },
     },
     {
       text: 'Name',
@@ -218,10 +206,7 @@ export default function App({ rallyContext, data }: AppProps) {
   );
 
   // ── Columns ────────────────────────────────────────────────────────
-  const columns = useMemo(
-    () => buildColumns(rallyContext.Url?.origin),
-    [rallyContext.Url?.origin],
-  );
+  const columns = useMemo(() => buildColumns(), []);
 
   // ── EditMode render ────────────────────────────────────────────────
   if (rallyContext.isEditMode) {
@@ -352,6 +337,7 @@ export default function App({ rallyContext, data }: AppProps) {
             stateId="wsjf-grid-columns"
             showRowNumbers
             emptyText={`No ${typeLabel} found.`}
+            rallyBaseUrl={rallyContext.Url?.origin}
             onCellEdit={handleCellEdit}
             exportToCsv={`wsjf-${typeLabel.toLowerCase()}.csv`}
             exportToExcel={`wsjf-${typeLabel.toLowerCase()}.xlsx`}
