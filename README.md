@@ -36,18 +36,19 @@ Higher scores = higher priority.
 
 ---
 
-## Build Commands
+## Setup
+
+For end-to-end setup — Rally API key, auth configuration, dev harness, and deployment — see **[docs/setup-guide.md](docs/setup-guide.md)**.
+
+Quick start once auth is configured:
 
 ```bash
+npm install
 npm run dev         # Dev server (mock data) at http://localhost:5848
 npm run build       # Production IIFE bundle (live Rally data)
 npm run build:mock  # Mock bundle (no Rally credentials needed)
 npm run typecheck   # TypeScript check
-```
-
-Create `auth.json` in this directory for live Rally dev proxy:
-```json
-{ "server": "https://rally1.rallydev.com", "apiKey": "YOUR_KEY" }
+npx widget-ai deploy  # Build + deploy to Rally as a Custom View
 ```
 
 ---
