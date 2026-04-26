@@ -25,6 +25,8 @@ const ITEM_TYPE_OPTIONS = [
   { value: 'portfolioitem/epic', label: 'Epic' },
 ];
 
+const WSJF_INPUT_FIELDS = ['RROEValue', 'UserBusinessValue', 'TimeCriticality', 'JobSize'] as const;
+
 const SETTINGS_DEFAULTS = defineWidgetSettings<WsjfSettings>({
   itemType: 'portfolioitem/feature',
   query: '',
@@ -153,12 +155,10 @@ export default function App({ rallyContext, data }: AppProps) {
 
   // Merge local overrides into server items
   const mergedItems = useMemo(
-    () =>
-      items.map((item) => {
-        const overrides = localItems.get(item.ObjectID);
-        if (!overrides) return item as unknown as Record<string, unknown>;
-        return { ...item, ...overrides } as unknown as Record<string, unknown>;
-      }),
+    () => items.map((item) => {
+      const overrides = localItems.get(item.ObjectID);
+      return (overrides ? { ...item, ...overrides } : item) as unknown as Record<string, unknown>;
+    }),
     [items, localItems],
   );
 
@@ -172,15 +172,16 @@ export default function App({ rallyContext, data }: AppProps) {
       const numValue = value === '' || value === null ? null : Number(value);
 
       // Build the update: the edited field + recalculated WSJFScore
-      const current = { ...record, ...localItems.get(oid) } as Record<string, unknown>;
+      const merged = { ...record, ...localItems.get(oid), [field]: numValue } as Record<string, unknown>;
       const next: Record<string, unknown> = { [field]: numValue };
 
-      if (['RROEValue', 'UserBusinessValue', 'TimeCriticality', 'JobSize'].includes(field)) {
-        const rroe = field === 'RROEValue' ? numValue : (current.RROEValue as number | null);
-        const ubv = field === 'UserBusinessValue' ? numValue : (current.UserBusinessValue as number | null);
-        const tc = field === 'TimeCriticality' ? numValue : (current.TimeCriticality as number | null);
-        const js = field === 'JobSize' ? numValue : (current.JobSize as number | null);
-        next.WSJFScore = calcWsjfScore(rroe, ubv, tc, js);
+      if ((WSJF_INPUT_FIELDS as readonly string[]).includes(field)) {
+        next.WSJFScore = calcWsjfScore(
+          merged.RROEValue as number | null,
+          merged.UserBusinessValue as number | null,
+          merged.TimeCriticality as number | null,
+          merged.JobSize as number | null,
+        );
       }
 
       // Optimistic update

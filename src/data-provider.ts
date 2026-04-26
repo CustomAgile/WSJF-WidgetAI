@@ -1,7 +1,7 @@
 /** Copyright (c) 2026 Custom Agile LLC. All rights reserved. */
 
 import type { RallyContext } from '@customagile/widget-ai/types/rally-context';
-import { wsapiQuery, wsapiUpdate } from '@customagile/widget-ai/data/wsapi';
+import { wsapiQueryAll, wsapiUpdate } from '@customagile/widget-ai/data/wsapi';
 import type { ArtifactTypeKey } from '@customagile/widget-ai/types/rally-registry';
 import type { WsjfDataProvider, WsjfItem } from './types';
 
@@ -41,14 +41,14 @@ export function createRallyProvider(ctx: RallyContext): WsjfDataProvider {
           ? ctx.GlobalScope.Project
           : ctx.GlobalScope.Project._ref;
 
-      const results = await wsapiQuery(itemType as ArtifactTypeKey, {
+      const results = await wsapiQueryAll(itemType as ArtifactTypeKey, {
         fetch: FETCH_FIELDS,
         query: extraQuery ?? '',
         workspace: workspaceRef || undefined,
         project: projectRef || undefined,
         projectScopeDown: ctx.GlobalScope.ProjectScopeDown,
         order: 'WSJFScore DESC',
-        pagesize: 200,
+        pagesize: 2000,
       });
 
       return mapItems(results as Record<string, unknown>[]);
