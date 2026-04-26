@@ -2,8 +2,6 @@
 
 A Rally Custom View widget that displays Portfolio Items ranked by their **Weighted Shortest Job First (WSJF)** score, with inline editing of all four WSJF input fields.
 
-
-
 ![WSJF Grid screenshot](docs/screenshot.png)
 
 ---
@@ -72,6 +70,5 @@ npx widget-ai deploy  # Build + deploy to Rally as a Custom View
 - `src/main.tsx` — Entry point, mock/live branching
 
 ## Reference
-
 
 - SAFe WSJF: [scaledagileframework.com/wsjf](https://scaledagileframework.com/wsjf/)
